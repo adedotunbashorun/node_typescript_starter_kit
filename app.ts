@@ -4,7 +4,10 @@ import * as cors from "cors";
 import { Server } from "@overnightjs/core";
 import { Logger } from "@overnightjs/logger";
 import * as mongoose from "mongoose";
-import { MONGODB_URI } from "./config/db";
+import * as dotenv from "dotenv";
+dotenv.config();
+dotenv.config({ path: `${__dirname}/.env`});
+import { config } from "./config/app";
 
 class AppServer extends Server {
 
@@ -19,6 +22,7 @@ class AppServer extends Server {
     private config(): void {
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({extended: true}));
+        this.app.use(cors());
         this.setupControllers();
     }
 
@@ -34,7 +38,7 @@ class AppServer extends Server {
           Logger.Imp("Mongo Connection Disconnected");
           Logger.Imp("Trying to reconnect to Mongo ...");
           setTimeout(() => {
-            mongoose.connect(MONGODB_URI,{
+            mongoose.connect(config.db.url, {
               useNewUrlParser: true,
               autoReconnect: true, keepAlive: true,
               socketTimeoutMS: 3000, connectTimeoutMS: 3000,
@@ -49,13 +53,13 @@ class AppServer extends Server {
         });
 
         const run = async () => {
-          await mongoose.connect(MONGODB_URI, {
+          await mongoose.connect(config.db.url, {
             useNewUrlParser: true,
             autoReconnect: true, keepAlive: true,
           });
         };
         run().catch((error: Error) => Logger.Imp(error));
-      }
+    }
 
     private setupControllers(): void {
         const ctlrInstances = [];

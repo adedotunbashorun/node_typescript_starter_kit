@@ -5,6 +5,7 @@ export interface IUser extends Document {
     first_name?: string;
     last_name?: string;
     username: string;
+    email: string;
     password: string;
     profile_image?: string;
     cloud_image?: string;
@@ -14,23 +15,26 @@ export const userSchema: Schema = new Schema({
     first_name: { type: String, default: "" },
     last_name: { type: String, default: "" },
     username: { type: String},
+    email: {
+        type: String,
+        lowercase: true,
+        required: true,
+        validate: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
+        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
+        index: { unique: true },
+    },
     password: { type: String},
     profile_image: { type: String, default: null },
     cloud_image: { type: String, default: null },
+    is_active: { type: Boolean, required: true, default: false },
 });
 
 
 userSchema.pre<IUser>("save", function save(next) {
     const user = this;
-
-    bcrypt.genSalt(10, (err, salt) => {
-        if (err) { return next(err); }
-        bcrypt.hash(this.password, salt, (err: Error, hash: any) => {
-            if (err) { return next(err); }
-            user.password = hash;
-            next();
-        });
-    });
+    const hash = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
+    user.password = hash;
+    next();
 });
 
 userSchema.methods.comparePassword = function (candidatePassword: string, callback: any) {

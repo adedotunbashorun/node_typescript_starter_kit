@@ -3,7 +3,7 @@ import * as passportLocal from "passport-local";
 // import passportApiKey from "passport-headerapikey";
 import * as passportJwt from "passport-jwt";
 import { User } from "../models/user";
-import { JWT_SECRET } from "../config/jwt";
+import { config } from "../config/app";
 
 
 const LocalStrategy = passportLocal.Strategy;
@@ -29,7 +29,7 @@ passport.use(new LocalStrategy({ usernameField: "username" }, (username, passwor
 passport.use(new JwtStrategy(
     {
         jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-        secretOrKey: JWT_SECRET,
+        secretOrKey: config.app.JWT_SECRET,
     },  (jwtToken, done) => {
     User.findOne({ username: jwtToken.username },  (err, user) => {
         if (err) { return done(err, false); }
