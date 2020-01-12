@@ -35,5 +35,5 @@ export const config  = {
             clientSecret: "jwSfO3NBVqNY+VNbA9D8u+biO460z0pVl8DmlT/e8matjD+UeyVLHNzsAXObVfCav1uFds8rPR3rvu+DXRL0kWRwEk8R09phcQ64qThLMLLMrXzHoH/Q774f2McIQn2f",
             accessToken: "a852ca944c59ab717ee9a94ed3c6b50a",
         },
-    }
-}
+    },
+};

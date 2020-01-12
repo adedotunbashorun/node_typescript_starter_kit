@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { Get, Delete } from "@overnightjs/core";
-import { IObserver } from "../observers/contracts";
+import { Controller, Get, Delete } from "@overnightjs/core";
 
+@Controller("")
 export class AbstractController {
     protected repository: any;
 
