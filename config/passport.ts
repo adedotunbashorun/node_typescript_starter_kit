@@ -1,6 +1,5 @@
 import * as passport from "passport";
 import * as passportLocal from "passport-local";
-// import passportApiKey from "passport-headerapikey";
 import * as passportJwt from "passport-jwt";
 import { User } from "../models/user";
 import { config } from "../config/app";
