@@ -5,7 +5,7 @@ import * as passportJwt from "passport-jwt";
 import { User } from "../models/user";
 import { config } from "../config/app";
 
-
+// tslint:disable-next-line: variable-name
 const LocalStrategy = passportLocal.Strategy;
 const JwtStrategy = passportJwt.Strategy;
 const ExtractJwt = passportJwt.ExtractJwt;
