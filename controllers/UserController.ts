@@ -5,9 +5,10 @@ import { AbstractController } from "./AbstractController";
 import { UserRepository as Repository } from "../abstract/UserRepository";
 import { checkJwt } from "../middleware/auth";
 import { IUserM } from "../models/User";
+import * as bcrypt from "bcrypt-nodejs";
 
 @Controller("api/users")
-// @ClassMiddleware([checkJwt])
+@ClassMiddleware([checkJwt])
 export class UserController extends AbstractController {
     protected file: any;
 
@@ -19,8 +20,8 @@ export class UserController extends AbstractController {
     @Get("")
     public async index(req: Request, res: Response): Promise<void> {
         try {
-            const data: IUserM = this.repository.findAll();
-            res.status(200).send({ success: true, data });
+            const user = await this.repository.findAll();
+            res.status(200).send({ success: true, user });
         } catch (error) {
             res.status(401).json({ success: false, error, msg: error.message });
         }
@@ -30,12 +31,12 @@ export class UserController extends AbstractController {
     public async registerUser(req: Request, res: Response): Promise<void> {
         try {
             const userPayload: IUserM = req.body;
+            userPayload.password = bcrypt.hashSync(req.body.password);
             const user = await this.repository.createNew(userPayload);
 
             user.profile_image = this.file.localUpload(req.body.profile_image, "/images/profile/", req.body.last_name, ".png");
             user.cloud_image = this.file.cloudUpload(req.body.profile_image);
             user.save();
-            console.log(process.env.user);
             res.status(200).json({ success: true, user, msg: "user created successfully!" });
         } catch (error) {
             res.status(401).json({ success: false, error, msg: error.message });
@@ -74,7 +75,7 @@ export class UserController extends AbstractController {
     @Delete("destroy/:id")
     public async destroy(req: Request, res: Response): Promise<void> {
         try {
-            this.repository.forceDelete(req.params.id);
+            await this.repository.forceDelete(req.params.id);
             res.status(200).send({ success: true, msg: "user deleted successfull"});
         } catch (error) {
             res.status(401).json({ success: false, error, msg: error.message });

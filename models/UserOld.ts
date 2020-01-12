@@ -12,6 +12,7 @@ export interface IUserM extends Document {
     cloud_image?: string;
     is_active: boolean;
     fullName(): string;
+    hashPassword(candidatePassword: any): any;
     comparePassword(candidatePassword: any): boolean;
 }
 
@@ -35,15 +36,13 @@ export const userSchema: Schema = new Schema({
     deleted_at: {type: String, default: null },
 }, { timestamps: true });
 
-// userSchema.pre<IUserM>("save", function save(next) {
-//     const user = this;
-//     const hash = bcrypt.hashSync(this.password);
-//     user.password = hash;
-//     next();
-// });
+userSchema.methods.hashPassword = (candidatePassword: string) => {
+    // const salt: any = 10;
+    return bcrypt.hashSync(candidatePassword, bcrypt.genSaltSync(10));
+};
 
 userSchema.methods.comparePassword = function(candidatePassword: string) {
-    return bcrypt.compareSync(candidatePassword, this.password);
+    bcrypt.compareSync(candidatePassword, this.password);
 };
 
 userSchema.methods.fullName = function(): string {

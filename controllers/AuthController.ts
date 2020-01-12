@@ -5,7 +5,7 @@ import * as passport from "passport";
 import { config } from "../config/app";
 import { UserRepository as Repository } from "../abstract/UserRepository";
 import { IUserM } from "../models/User";
-import { Logger } from '@overnightjs/logger';
+import * as bcrypt from "bcrypt-nodejs";
 
 @Controller("api/auth")
 export class AuthController {
@@ -18,6 +18,7 @@ export class AuthController {
     public async registerUser(req: Request, res: Response): Promise<void> {
         try {
             const userPayload: IUserM = req.body;
+            userPayload.password = bcrypt.hashSync(req.body.password);
             const user = await this.repository.createNew(userPayload);
             const token = jwt.sign({ username: user.username, email: user.email, userId: user.id }, config.app.JWT_SECRET, { expiresIn: "1h" });
             res.status(200).json({ success: true, user, token });
@@ -51,7 +52,6 @@ export class AuthController {
             } else {
                 req.logIn(user, { session: false }, (err) => {
                     if (err) { return res.json(err.message); }
-                    Logger.Info(process.env.user);
                     const token = jwt.sign({ username: user.username, email: user.email, userId: user.id }, config.app.JWT_SECRET, { expiresIn: "1h" });
                     res.status(200).json({ user, token });
                 });

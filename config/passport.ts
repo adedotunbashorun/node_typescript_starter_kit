@@ -10,12 +10,13 @@ const JwtStrategy = passportJwt.Strategy;
 const ExtractJwt = passportJwt.ExtractJwt;
 
 passport.use(new LocalStrategy({ usernameField: "email", passwordField: "password" }, (email, password, done) => {
-  User.findOne({ email: email.toLowerCase() }, (err, user: any) => {
+  User.findOne({ email: email.toLowerCase() }, async (err, user: any) => {
     if (err) { return done(err); }
     if (!user) {
       return done(undefined, false, { message: `user with ${email} not found.` });
     }
-    if (!user.comparePassword(password)) {
+    const success = await user.comparePassword(password);
+    if (!success) {
       return done(null, false, { message: "Incorrect password." });
     }
     if (user.is_active === false) {
@@ -25,6 +26,16 @@ passport.use(new LocalStrategy({ usernameField: "email", passwordField: "passwor
     return done(null, user);
   });
 }));
+
+passport.serializeUser((user: any, done: any) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  User.findById(id, (err, user) => {
+      done(err, user);
+  });
+});
 
 passport.use(new JwtStrategy(
     {
