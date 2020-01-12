@@ -1,9 +1,9 @@
 export const config  = {
     app: {
-        port: process.env.PORT,
+        port: process.env.PORT as string,
         name : "Test",
         email : "adedotunolawale@gmail.com",
-        JWT_SECRET: "TestRefile",
+        JWT_SECRET: process.env.JWT_SECRET as string,
     },
     db: {
         url: process.env.MONGODB_URI as string,

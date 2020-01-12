@@ -9,7 +9,7 @@ export interface INotification extends Document {
 }
 
 export const notificationSchema: Schema = new Schema({
-    userId: { type: Schema, ref: "User" },
+    userId: { type: Schema.Types.ObjectId, ref: "User" },
     name: { type: String, required: true},
     type: {type: String, required: true},
     data: {type: Object, required: true},

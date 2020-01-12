@@ -1,11 +1,10 @@
 import * as passport from "passport";
 import * as passportLocal from "passport-local";
-// import passportApiKey from "passport-headerapikey";
 import * as passportJwt from "passport-jwt";
 import { User } from "../models/user";
 import { config } from "../config/app";
 
-
+// tslint:disable-next-line: variable-name
 const LocalStrategy = passportLocal.Strategy;
 const JwtStrategy = passportJwt.Strategy;
 const ExtractJwt = passportJwt.ExtractJwt;

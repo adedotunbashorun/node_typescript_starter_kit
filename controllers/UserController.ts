@@ -1,12 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import { Controller, Get, Put, Post, Delete } from "@overnightjs/core";
-import * as jwt from "jsonwebtoken";
-import * as passport from "passport";
-import "../config/passport";
-import { config } from "../config/app";
+import { Controller, Middleware, Get, Put, Post, Delete } from "@overnightjs/core";
 import File from "../utilities/file";
 import { AbstractController } from "./AbstractController";
 import { IUser as Repository } from "../Abstract/UserInterface";
+import { checkJwt } from "../middleware/auth";
+import { IUserM } from "../models/User";
 
 @Controller("api/user")
 export class UserController extends AbstractController {
@@ -17,29 +15,58 @@ export class UserController extends AbstractController {
         this.file = new File();
     }
 
-    @Post("/register")
+    @Post("register")
+    @Middleware([checkJwt])
     public async registerUser(req: Request, res: Response): Promise<void> {
 
-        const user = await this.repository.createNew(req.body);
-        user.profile_image = this.file.localUpload(req.body.profile_image, "/images/profile/", req.body.last_name, ".png");
-        this.file.cloudUpload(user, req.body.profile_image);
+        const userPayload: IUserM = req.body;
+        const user = await this.repository.createNew(userPayload);
 
-        const token = jwt.sign({ username: user.username, scope : req.body.scope }, config.app.JWT_SECRET);
-        res.status(200).json({ user, token });
+        user.profile_image = this.file.localUpload(req.body.profile_image, "/images/profile/", req.body.last_name, ".png");
+        user.cloud_image = this.file.cloudUpload(req.body.profile_image);
+        user.save();
+
+        res.status(200).json({ user });
     }
 
-    @Post("/login")
-    public authenticateUser(req: Request, res: Response, next: NextFunction) {
-        passport.authenticate("local",  (err, user, info) => {
-            // no async/await because passport works only with callback ..
-            if (err) { return next({err}); }
+    @Put("update/:userId")
+    @Middleware([checkJwt])
+    public async updateUser(req: Request, res: Response): Promise<void> {
 
-            if (!user) {
-                return res.status(401).json({ status: "error", code: "unauthorized" });
-            } else {
-                const token = jwt.sign({ username: user.username }, config.app.JWT_SECRET);
-                res.status(200).json({ user, token });
-            }
-        });
+        const userPayload: IUserM = req.body;
+
+        const user = await this.repository.updateData(req.params.userId, userPayload);
+        user.profile_image = this.file.localUpload(req.body.profile_image, "/images/profile/", req.body.last_name, ".png");
+        user.cloud_image = this.file.cloudUpload(req.body.profile_image);
+        user.save();
+
+        res.status(200).json({ user });
+    }
+
+    @Get(":userId")
+    @Middleware([checkJwt])
+    public async findUser(req: Request, res: Response): Promise<void> {
+
+        const user = await this.repository.findById(req.params.userId);
+
+        res.status(200).json({ user });
+    }
+
+    @Delete(":userId")
+    @Middleware([checkJwt])
+    public async softDeleteUser(req: Request, res: Response): Promise<void> {
+
+        const user = await this.repository.softDelete(req.params.userId);
+
+        res.status(200).json({ user });
+    }
+
+    @Delete("destroy/:userId")
+    @Middleware([checkJwt])
+    public async hardDeleteUser(req: Request, res: Response): Promise<void> {
+
+        const user = await this.repository.forceDelete(req.params.userId);
+
+        res.status(200).json({ user });
     }
 }

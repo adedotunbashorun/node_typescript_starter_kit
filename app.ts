@@ -4,11 +4,8 @@ import * as cors from "cors";
 import { Server } from "@overnightjs/core";
 import { Logger } from "@overnightjs/logger";
 import * as mongoose from "mongoose";
-import * as dotenv from "dotenv";
-dotenv.config();
-dotenv.config({ path: `${__dirname}/.env`});
+import * as passport from "passport";
 import { config } from "./config/app";
-
 class AppServer extends Server {
 
     private readonly SERVER_STARTED = "Example server started on port: ";
@@ -16,13 +13,16 @@ class AppServer extends Server {
     constructor() {
         super(true);
         this.config();
-        this.mongo();
     }
 
     private config(): void {
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({extended: true}));
         this.app.use(cors());
+        this.mongo();
+        require("./config/passport");
+        this.app.use(passport.initialize());
+        this.app.use(passport.session());
         this.setupControllers();
     }
 

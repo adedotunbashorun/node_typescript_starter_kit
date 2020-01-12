@@ -7,7 +7,7 @@ export interface IActivityLog extends Document {
 }
 
 export const activitySchema: Schema = new Schema({
-    userId: { type: Schema, ref: "User", default: null },
+    userId: { type: Schema.Types.ObjectId, ref: "User", default: null },
     description: {
         type: String,
         required: true,
