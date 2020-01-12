@@ -18,15 +18,13 @@ class File {
         }
         return "";
     }
-    cloudUpload(model, file) {
+    cloudUpload(file) {
         if (typeof file !== "undefined" || file !== "" || file !== null) {
             this.cloudinaryEnv.uploader.upload(file, (error, result) => {
                 if (error) {
                     logger_1.Logger.Imp(error);
                 }
                 if (result) {
-                    model.cloud_image_url = result.secure_url;
-                    model.save();
                     return result.url;
                 }
             });

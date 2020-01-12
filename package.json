@@ -2,10 +2,10 @@
   "name": "node_project_ts",
   "version": "1.0.0",
   "description": "a node js application using typescript",
-  "main": "dist/server.js",
+  "main": "dist/src/server.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config src/server.ts",
-    "start": "ts-node ./src/server.ts",
+    "start": "ts-node -r dotenv/config ./src/server.ts",
     "build": "rm -rf ./dist/ && tsc",
     "prod": "npm run build && npm start"
   },

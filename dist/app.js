@@ -7,7 +7,10 @@ const cors = require("cors");
 const core_1 = require("@overnightjs/core");
 const logger_1 = require("@overnightjs/logger");
 const mongoose = require("mongoose");
-const db_1 = require("./config/db");
+const dotenv = require("dotenv");
+dotenv.config();
+dotenv.config({ path: `${__dirname}/.env` });
+const app_1 = require("./config/app");
 class AppServer extends core_1.Server {
     constructor() {
         super(true);
@@ -33,9 +36,10 @@ class AppServer extends core_1.Server {
             logger_1.Logger.Imp("Mongo Connection Disconnected");
             logger_1.Logger.Imp("Trying to reconnect to Mongo ...");
             setTimeout(() => {
-                mongoose.connect(db_1.MONGODB_URI, {
+                mongoose.connect(app_1.config.db.url, {
+                    useNewUrlParser: true,
                     autoReconnect: true, keepAlive: true,
-                    socketTimeoutMS: 3000, connectTimeoutMS: 3000
+                    socketTimeoutMS: 3000, connectTimeoutMS: 3000,
                 });
             }, 3000);
         });
@@ -46,7 +50,8 @@ class AppServer extends core_1.Server {
             logger_1.Logger.Imp("Mongo Connection ERROR: " + error);
         });
         const run = () => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            yield mongoose.connect(db_1.MONGODB_URI, {
+            yield mongoose.connect(app_1.config.db.url, {
+                useNewUrlParser: true,
                 autoReconnect: true, keepAlive: true,
             });
         });

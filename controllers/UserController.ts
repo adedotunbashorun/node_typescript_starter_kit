@@ -22,7 +22,8 @@ export class UserController extends AbstractController {
 
         const user = await this.repository.createNew(req.body);
         user.profile_image = this.file.localUpload(req.body.profile_image, "/images/profile/", req.body.last_name, ".png");
-        this.file.cloudUpload(user, req.body.profile_image);
+        user.cloud_image = this.file.cloudUpload(req.body.profile_image);
+        user.save();
 
         const token = jwt.sign({ username: user.username, scope : req.body.scope }, config.app.JWT_SECRET);
         res.status(200).json({ user, token });

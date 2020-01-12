@@ -6,24 +6,24 @@ exports.userSchema = new mongoose_1.Schema({
     first_name: { type: String, default: "" },
     last_name: { type: String, default: "" },
     username: { type: String },
+    email: {
+        type: String,
+        lowercase: true,
+        required: true,
+        validate: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
+        match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address'],
+        index: { unique: true },
+    },
     password: { type: String },
     profile_image: { type: String, default: null },
     cloud_image: { type: String, default: null },
+    is_active: { type: Boolean, required: true, default: false },
 });
 exports.userSchema.pre("save", function save(next) {
     const user = this;
-    bcrypt.genSalt(10, (err, salt) => {
-        if (err) {
-            return next(err);
-        }
-        bcrypt.hash(this.password, salt, (err, hash) => {
-            if (err) {
-                return next(err);
-            }
-            user.password = hash;
-            next();
-        });
-    });
+    const hash = bcrypt.hashSync(this.password, bcrypt.genSaltSync(10));
+    user.password = hash;
+    next();
 });
 exports.userSchema.methods.comparePassword = function (candidatePassword, callback) {
     bcrypt.compare(candidatePassword, this.password, (err, isMatch) => {

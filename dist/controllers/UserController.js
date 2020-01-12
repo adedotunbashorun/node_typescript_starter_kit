@@ -1,32 +1,26 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const bcrypt = require("bcrypt-nodejs");
 const core_1 = require("@overnightjs/core");
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 require("../config/passport");
-const user_1 = require("../models/user");
-const jwt_1 = require("../config/jwt");
+const app_1 = require("../config/app");
 const file_1 = require("../utilities/file");
-const string_1 = require("../utilities/string");
-let UserController = class UserController {
-    constructor() {
+const AbstractController_1 = require("./AbstractController");
+let UserController = class UserController extends AbstractController_1.AbstractController {
+    constructor(repository) {
+        super(repository);
         this.file = new file_1.default();
     }
     registerUser(req, res) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const hashedPassword = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
-            const user = yield user_1.User.create({
-                first_name: string_1.capitalize(req.body.first_name),
-                last_name: string_1.capitalize(req.body.last_name),
-                username: req.body.username,
-                password: hashedPassword,
-                profile_image: this.file.localUpload(req.body.profile_image, "/images/profile/", req.body.last_name, ".png"),
-            });
-            this.file.cloudUpload(user, req.body.profile_image);
-            const token = jwt.sign({ username: user.username, scope: req.body.scope }, jwt_1.JWT_SECRET);
-            res.status(200).send({ user, token });
+            const user = yield this.repository.createNew(req.body);
+            user.profile_image = this.file.localUpload(req.body.profile_image, "/images/profile/", req.body.last_name, ".png");
+            user.cloud_image = this.file.cloudUpload(req.body.profile_image);
+            user.save();
+            const token = jwt.sign({ username: user.username, scope: req.body.scope }, app_1.config.app.JWT_SECRET);
+            res.status(200).json({ user, token });
         });
     }
     authenticateUser(req, res, next) {
@@ -38,8 +32,8 @@ let UserController = class UserController {
                 return res.status(401).json({ status: "error", code: "unauthorized" });
             }
             else {
-                const token = jwt.sign({ username: user.username }, jwt_1.JWT_SECRET);
-                res.status(200).send({ token });
+                const token = jwt.sign({ username: user.username }, app_1.config.app.JWT_SECRET);
+                res.status(200).json({ user, token });
             }
         });
     }
@@ -58,6 +52,6 @@ tslib_1.__decorate([
 ], UserController.prototype, "authenticateUser", null);
 UserController = tslib_1.__decorate([
     core_1.Controller("api/user"),
-    tslib_1.__metadata("design:paramtypes", [])
+    tslib_1.__metadata("design:paramtypes", [Object])
 ], UserController);
 exports.UserController = UserController;

@@ -21,15 +21,13 @@ export default class File {
         return "";
     }
 
-    public cloudUpload(model: any, file: any) {
+    public cloudUpload(file: any) {
         if (typeof file !== "undefined" || file !== "" || file !== null) {
             this.cloudinaryEnv.uploader.upload(file, (error: Error, result: any) => {
                 if (error) {
                     Logger.Imp(error);
                 }
                 if (result) {
-                    model.cloud_image_url = result.secure_url;
-                    model.save();
                     return result.url;
                 }
             });
