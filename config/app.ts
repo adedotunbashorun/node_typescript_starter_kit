@@ -5,6 +5,7 @@ export const config  = {
         email : "adedotunolawale@gmail.com",
         JWT_SECRET: process.env.JWT_SECRET as string,
     },
+    user: process.env.user as any,
     db: {
         url: process.env.MONGODB_URI as string,
     },

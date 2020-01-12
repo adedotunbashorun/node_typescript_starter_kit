@@ -14,47 +14,47 @@ export class UserEvents extends EventEmitter.EventEmitter {
         this.core = new Core();
         this.notification = new Notification();
         // Become eaten when gator emits 'gatorEat'
-        this.on('onRegister', this.onRegister);
+        this.on("onRegister", this.onRegister);
     }
 
-    async onRegister() {
+    public async onRegister() {
 
-        let user = this.user;
+        const user = this.user;
 
-        this.core.Email(user, 'New Registration', this.core.html('<p style="color: #000">Hello ' + user.first_name + ' ' + user.last_name + ', Thank you for registering at fashionCast.<br> Please click the link below to complete registration https://fashioncastapi.herokuapp.com/api/activate/' + user.temporarytoken + '</p>'));
+        this.core.Email(user, "New Registration", this.core.html('<p style="color: #000">Hello ' + user.first_name + " " + user.last_name + ", Thank you for registering at fashionCast.<br> Please click the link below to complete registration https://fashioncastapi.herokuapp.com/api/activate/" + user.temporarytoken + "</p>"));
 
-        this.sms.sendSms(user.phone, 'Hello '+ user.first_name+' this is your activation code '+user.phone_code);
+        this.sms.sendSms(user.phone, `Hello ${user.first_name} this is your activation code ${user.phone_code}`);
 
-        this.core.activity_log(this.req, user.id, 'Registered');
+        this.core.activity_log(this.req, user.id, "Registered");
 
-        this.notification.triggerNotification('notifications','users',{user, message: {msg: user.last_name + " Just created a new account."}}, this.req);
+        this.notification.triggerNotification("notifications", "users", {user, message: {msg: user.last_name + " Just created a new account."}}, this.req);
 
-        
+
     }
 
-    async onActivate(){
+    public async onActivate() {
 
-        let user = this.user;
+        const user = this.user;
 
-        if (user.is_active == false) {
-            this.core.Email(user, 'Account De-activated', this.core.html('<p style="color: #000">Hello ' + user.first_name + ' ' + user.last_name + ', Thank you for using Refill. Your Account has been de-activated please contact support for re-activation @ refill.com.ng \n\r Thank You.'));
+        if(user.is_active === false) {
+            this.core.Email(user, "Account De-activated", this.core.html(`<p style="color: #000">Hello  ${user.first_name} ${user.last_name}, Thank you for using Refill. Your Account has been de-activated please contact support for re-activation @ refill.com.ng \n\r Thank You.`));
         } else {
-            this.core.Email(user, 'Account Activated', this.core.html('<p style="color: #000">Hello ' + user.first_name + ' ' + user.last_name + ', Thank you for registering at Refill. Your Account has been activated successfully.'));
-        } 
-        this.core.activity_log(this.req, user.id, 'Activated Account')
+            this.core.Email(user, "Account Activated", this.core.html(`<p style="color: #000">Hello ${user.first_name} ${user.last_name}, Thank you for registering at Refill. Your Account has been activated successfully.`));
+        }
+        this.core.activity_log(this.req, user.id, "Activated Account");
     }
 
-    async onLogin(){
+    public async onLogin()  {
 
-        let user = this.user;
-        
-        this.core.activity_log(this.req, user.id, 'User logged into account')
+        const user = this.user;
+
+        this.core.activity_log(this.req, user.id, "User logged into account");
     }
 
-    async onLogout(){
+    public async onLogout() {
 
-        let user = this.user;
-        
-        this.core.activity_log(this.req, user.id, 'User logged out of account')
+        const user = this.user;
+
+        this.core.activity_log(this.req, user.id, "User logged out of account");
     }
 }

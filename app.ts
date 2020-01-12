@@ -9,6 +9,7 @@ import { config } from "./config/app";
 class AppServer extends Server {
 
     private readonly SERVER_STARTED = "Example server started on port: ";
+    public a = 10;
 
     constructor() {
         super(true);

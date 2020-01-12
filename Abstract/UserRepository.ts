@@ -1,7 +1,6 @@
 import { AbstractRepository } from "./AbstractRepository";
-import { IUser } from "./UserInterface";
 
-export class UserRepository extends AbstractRepository implements IUser {
+export class UserRepository extends AbstractRepository {
 
     constructor() {
         super("User");

@@ -6,10 +6,13 @@ export interface IUserM extends Document {
     last_name?: string;
     username: string;
     email: string;
+    phone?: string;
     password: string;
     profile_image?: string;
     cloud_image?: string;
+    is_active: boolean;
     fullName(): string;
+    comparePassword(candidatePassword: any, callback: any): string;
 }
 
 export const userSchema: Schema = new Schema({
@@ -24,6 +27,7 @@ export const userSchema: Schema = new Schema({
         match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, "Please fill a valid email address"],
         index: { unique: true },
     },
+    phone: { type: String},
     password: { type: String},
     profile_image: { type: String, default: null },
     cloud_image: { type: String, default: null },

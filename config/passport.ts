@@ -18,6 +18,10 @@ passport.use(new LocalStrategy({ usernameField: "username" }, (username, passwor
     user.comparePassword(password, (err: Error, isMatch: boolean) => {
       if (err) { return done(err); }
       if (isMatch) {
+        if (user.is_active === false) {
+          return done(null, false, { message: "User Not Activated." });
+        }
+        process.env.user = user;
         return done(undefined, user);
       }
       return done(undefined, false, { message: "Invalid username or password." });
