@@ -3,12 +3,15 @@ import * as controllers from "./controllers";
 import * as cors from "cors";
 import { Server } from "@overnightjs/core";
 import { Logger } from "@overnightjs/logger";
+import * as morgan from "morgan";
 import * as mongoose from "mongoose";
 import * as passport from "passport";
 import { config } from "./config/app";
+
 class AppServer extends Server {
 
     private readonly SERVER_STARTED = "Example server started on port: ";
+    public a = 10;
 
     constructor() {
         super(true);
@@ -19,8 +22,9 @@ class AppServer extends Server {
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({extended: true}));
         this.app.use(cors());
-        this.mongo();
+        this.app.use(morgan("dev"));
         require("./config/passport");
+        this.mongo();
         this.app.use(passport.initialize());
         this.app.use(passport.session());
         this.setupControllers();

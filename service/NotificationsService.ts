@@ -1,15 +1,16 @@
 import * as pusher from "pusher";
 import { Notification } from "../models/Notification";
+import { config } from "../config/app";
 
 export default class NotificationsService {
     protected pushers: any;
 
     constructor() {
         this.pushers = new pusher({
-            appId: process.env.PUSHER_APP_ID,
-            key: process.env.PUSHER_APP_KEY,
-            secret: process.env.PUSHER_APP_SECRET,
-            cluster: process.env.PUSHER_APP_CLUSTER,
+            appId: config.pusher.appId,
+            key: config.pusher.key,
+            secret: config.pusher.secret,
+            cluster: config.pusher.cluster,
         });
     }
 

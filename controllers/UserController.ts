@@ -1,72 +1,72 @@
 import { NextFunction, Request, Response } from "express";
-import { Controller, Middleware, Get, Put, Post, Delete } from "@overnightjs/core";
-import File from "../utilities/file";
+import { Controller, ClassMiddleware, Get, Put, Post, Delete } from "@overnightjs/core";
 import { AbstractController } from "./AbstractController";
-import { IUser as Repository } from "../Abstract/UserInterface";
+import { UserRepository as Repository } from "../abstract/UserRepository";
 import { checkJwt } from "../middleware/auth";
 import { IUserM } from "../models/User";
+import { UserService } from "../service/UserService";
 
-@Controller("api/user")
+@Controller("api/users")
+@ClassMiddleware([checkJwt])
 export class UserController extends AbstractController {
-    protected file: any;
+    private user: any = new UserService();
+    constructor() {
+        super(new Repository());
+    }
 
-    constructor(repository: Repository) {
-        super(repository);
-        this.file = new File();
+    @Get("")
+    public async index(req: Request, res: Response): Promise<void> {
+        try {
+            const user: IUserM = await this.repository.findAll();
+            res.status(200).send({ success: true, user });
+        } catch (error) {
+            res.status(401).json({ success: false, error, msg: error.message });
+        }
     }
 
     @Post("register")
-    @Middleware([checkJwt])
     public async registerUser(req: Request, res: Response): Promise<void> {
+        try {
+            const user: IUserM = await this.user.create(req);
 
-        const userPayload: IUserM = req.body;
-        const user = await this.repository.createNew(userPayload);
+            res.status(200).json({ success: true, user, msg: "user created successfully!" });
+        } catch (error) {
+            res.status(401).json({ success: false, error, msg: error.message });
+        }
 
-        user.profile_image = this.file.localUpload(req.body.profile_image, "/images/profile/", req.body.last_name, ".png");
-        user.cloud_image = this.file.cloudUpload(req.body.profile_image);
-        user.save();
-
-        res.status(200).json({ user });
     }
 
     @Put("update/:userId")
-    @Middleware([checkJwt])
     public async updateUser(req: Request, res: Response): Promise<void> {
+        try {
+            const user: IUserM = await this.user.update(req);
 
-        const userPayload: IUserM = req.body;
-
-        const user = await this.repository.updateData(req.params.userId, userPayload);
-        user.profile_image = this.file.localUpload(req.body.profile_image, "/images/profile/", req.body.last_name, ".png");
-        user.cloud_image = this.file.cloudUpload(req.body.profile_image);
-        user.save();
-
-        res.status(200).json({ user });
+            res.status(200).json({ success: true, user, msg: "user updated successfully" });
+        } catch (error) {
+            res.status(401).json({ success: false, error, msg: error.message });
+        }
     }
 
     @Get(":userId")
-    @Middleware([checkJwt])
     public async findUser(req: Request, res: Response): Promise<void> {
+        try {
+            const user: IUserM = await this.repository.findById(req.params.userId);
 
-        const user = await this.repository.findById(req.params.userId);
+            res.status(200).json({ success: true, user });
 
-        res.status(200).json({ user });
+        } catch (error) {
+            res.status(401).json({ success: false, error, msg: error.message });
+        }
     }
 
-    @Delete(":userId")
-    @Middleware([checkJwt])
-    public async softDeleteUser(req: Request, res: Response): Promise<void> {
+    @Delete("destroy/:id")
+    public async destroy(req: Request, res: Response): Promise<void> {
+        try {
+            await this.repository.forceDelete(req.params.id);
+            res.status(200).send({ success: true, msg: "user deleted successfull"});
+        } catch (error) {
+            res.status(401).json({ success: false, error, msg: error.message });
+        }
 
-        const user = await this.repository.softDelete(req.params.userId);
-
-        res.status(200).json({ user });
-    }
-
-    @Delete("destroy/:userId")
-    @Middleware([checkJwt])
-    public async hardDeleteUser(req: Request, res: Response): Promise<void> {
-
-        const user = await this.repository.forceDelete(req.params.userId);
-
-        res.status(200).json({ user });
     }
 }

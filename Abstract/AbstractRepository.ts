@@ -1,7 +1,6 @@
 import * as mongoose from "mongoose";
-import { IAbstract } from "./AbstractInterface";
 
-export class AbstractRepository implements IAbstract {
+export class AbstractRepository {
     protected _model: any;
 
     constructor(model: any) {

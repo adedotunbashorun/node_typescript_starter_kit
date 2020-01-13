@@ -9,21 +9,33 @@ const LocalStrategy = passportLocal.Strategy;
 const JwtStrategy = passportJwt.Strategy;
 const ExtractJwt = passportJwt.ExtractJwt;
 
-passport.use(new LocalStrategy({ usernameField: "username" }, (username, password, done) => {
-  User.findOne({ username: username.toLowerCase() }, (err, user: any) => {
+passport.use(new LocalStrategy({ usernameField: "email", passwordField: "password" }, (email, password, done) => {
+  User.findOne({ email: email.toLowerCase() }, async (err, user: any) => {
     if (err) { return done(err); }
     if (!user) {
-      return done(undefined, false, { message: `username ${username} not found.` });
+      return done(undefined, false, { message: `user with ${email} not found.` });
     }
-    user.comparePassword(password, (err: Error, isMatch: boolean) => {
-      if (err) { return done(err); }
-      if (isMatch) {
-        return done(undefined, user);
-      }
-      return done(undefined, false, { message: "Invalid username or password." });
-    });
+    const success = await user.comparePassword(password);
+    if (!success) {
+      return done(null, false, { message: "Incorrect password." });
+    }
+    if (user.is_active === false) {
+      return done(null, false, { message: "User Not Activated." });
+    }
+    process.env.user = user;
+    return done(null, user);
   });
 }));
+
+passport.serializeUser((user: any, done: any) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  User.findById(id, (err, user) => {
+      done(err, user);
+  });
+});
 
 passport.use(new JwtStrategy(
     {

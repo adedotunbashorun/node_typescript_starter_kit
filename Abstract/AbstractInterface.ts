@@ -1,28 +1,28 @@
 export interface IAbstract {
 
-    createNew(data: any): any;
+    createNew(data: any): void;
 
-    updateData(id: any, data: any): any;
+    updateData(id: any, data: any): void;
 
-    findAll(): any;
+    findAll(): void;
 
-    findAllDeleted(): any;
+    findAllDeleted(): void;
 
-    findAllWithDeleted(): any;
+    findAllWithDeleted(): void;
 
-    findLimit(limit: number , orderColumn: string, orderDir: string): any;
+    findLimit(limit: number , orderColumn: string, orderDir: string): void;
 
-    findById(id: any): any;
+    findById(id: any): void;
 
-    findBy(where: any, value: any): any;
+    findBy(where: any, value: any): void;
 
-    findByFirst(where: any, value: any): any;
+    findByFirst(where: any, value: any): void;
 
-    softDelete(id: any): any;
+    softDelete(id: any): void;
 
-    forceDelete(id: any): any;
+    forceDelete(id: any): void;
 
-    countAllDocuments(): any;
+    countAllDocuments(): void;
 
-    countDocumentsWhere(where: any, value: any): any;
+    countDocumentsWhere(where: any, value: any): void;
 }
