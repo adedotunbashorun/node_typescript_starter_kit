@@ -1,7 +1,6 @@
 import { ActivityLog } from "../models/ActivityLog";
 
 import * as nodemailer from "nodemailer";
-import * as sgTransport from "nodemailer-sendgrid-transport";
 import { Logger } from "@overnightjs/logger";
 import { config } from "../config/app";
 
@@ -10,7 +9,13 @@ export default class CoreService {
     protected  client: any;
 
     constructor() {
-        this.client = nodemailer.createTransport(sgTransport(config.mail));
+        this.client = nodemailer.createTransport({
+            service: "SendGrid",
+            auth: {
+              user: config.mail.auth.api_user,
+              pass: config.mail.auth.api_key,
+            },
+          });
     }
 
     public async activityLog(req: any, userId: string, description: string) {
@@ -32,15 +37,15 @@ export default class CoreService {
                 to: (data.email) ? data.email : config.app.email,
                 subject,
                 html: message,
-            }
+            };
 
             this.client.sendMail(email, (err: Error, info: any) => {
                 if (err) {
                     Logger.Imp(err);
                 } else {
-                    Logger.Imp("Message sent: " + info.response)
+                    Logger.Imp("Message sent: " + info.response);
                 }
-            })
+            });
         } catch (error) {
             throw new Error(error);
         }

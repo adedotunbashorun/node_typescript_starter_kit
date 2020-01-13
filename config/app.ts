@@ -15,8 +15,8 @@ export const config  = {
     },
     mail: {
         auth: {
-            api_user: process.env.SENDGRID_USERNAME,
-            api_key: process.env.SENDGRID_PASSWORD,
+            api_user: process.env.SENDGRID_USERNAME as string,
+            api_key: process.env.SENDGRID_PASSWORD as string,
         },
     },
     sms: {
@@ -35,5 +35,11 @@ export const config  = {
             clientSecret: "jwSfO3NBVqNY+VNbA9D8u+biO460z0pVl8DmlT/e8matjD+UeyVLHNzsAXObVfCav1uFds8rPR3rvu+DXRL0kWRwEk8R09phcQ64qThLMLLMrXzHoH/Q774f2McIQn2f",
             accessToken: "a852ca944c59ab717ee9a94ed3c6b50a",
         },
+    },
+    pusher: {
+        appId: process.env.PUSHER_APP_ID as string,
+        key: process.env.PUSHER_APP_KEY as string,
+        secret: process.env.PUSHER_APP_SECRET as string,
+        cluster: process.env.PUSHER_APP_CLUSTER as string,
     },
 };

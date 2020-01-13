@@ -1,25 +1,23 @@
 import { NextFunction, Request, Response } from "express";
-import { Controller, Get, Put, Post, Delete } from "@overnightjs/core";
+import { Controller, Put, Post } from "@overnightjs/core";
 import * as jwt from "jsonwebtoken";
 import * as passport from "passport";
 import { config } from "../config/app";
-import { UserRepository as Repository } from "../abstract/UserRepository";
+import { UserService } from "../service/UserService";
 import { IUserM } from "../models/User";
-import * as bcrypt from "bcrypt-nodejs";
+import { UserRepository as Repository } from "../abstract/UserRepository";
 
 @Controller("api/auth")
 export class AuthController {
-    protected repository: any;
+    protected auth: any; private repository: any = new Repository();
     constructor() {
-        this.repository = new Repository();
+        this.auth = new UserService();
     }
 
     @Post("register")
     public async registerUser(req: Request, res: Response): Promise<void> {
         try {
-            const userPayload: IUserM = req.body;
-            userPayload.password = bcrypt.hashSync(req.body.password);
-            const user = await this.repository.createNew(userPayload);
+            const user: IUserM = await this.auth.create(req);
             const token = jwt.sign({ username: user.username, email: user.email, userId: user.id }, config.app.JWT_SECRET, { expiresIn: "1h" });
             res.status(200).json({ success: true, user, token });
         } catch (error) {

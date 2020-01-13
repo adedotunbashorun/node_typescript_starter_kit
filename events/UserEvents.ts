@@ -2,14 +2,13 @@ import * as EventEmitter from "events";
 import Core from "../service/CoreService";
 import Sms from "../service/Sms/AfricasTalking";
 import Notification from "../service/NotificationsService";
-
+import { Request } from "express";
 export class UserEvents extends EventEmitter.EventEmitter {
-    protected sms: any; protected user: any; protected core: any; protected req: any; protected notification: any;
-
-    constructor(user: any, req: any) {
+    protected sms: any; protected user: any; protected core: any; protected notification: any;
+    private req!: Request;
+    constructor() {
         super();
-        this.user = user;
-        this.req = req;
+        this.user = process.env.user;
         this.sms = new Sms();
         this.core = new Core();
         this.notification = new Notification();
@@ -18,7 +17,6 @@ export class UserEvents extends EventEmitter.EventEmitter {
     }
 
     public async onRegister() {
-
         const user = this.user;
 
         this.core.Email(user, "New Registration", this.core.html('<p style="color: #000">Hello ' + user.first_name + " " + user.last_name + ", Thank you for registering at fashionCast.<br> Please click the link below to complete registration https://fashioncastapi.herokuapp.com/api/activate/" + user.temporarytoken + "</p>"));
@@ -36,7 +34,7 @@ export class UserEvents extends EventEmitter.EventEmitter {
 
         const user = this.user;
 
-        if(user.is_active === false) {
+        if (user.is_active === false) {
             this.core.Email(user, "Account De-activated", this.core.html(`<p style="color: #000">Hello  ${user.first_name} ${user.last_name}, Thank you for using Refill. Your Account has been de-activated please contact support for re-activation @ refill.com.ng \n\r Thank You.`));
         } else {
             this.core.Email(user, "Account Activated", this.core.html(`<p style="color: #000">Hello ${user.first_name} ${user.last_name}, Thank you for registering at Refill. Your Account has been activated successfully.`));
